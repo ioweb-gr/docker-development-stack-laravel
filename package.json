@@ -1,0 +1,12 @@
+{
+  "name": "@ioweb/docker-development-stack-laravel",
+  "version": "1.0.0",
+  "description": "Project-neutral native DDEV Laravel integration and diagnostics",
+  "type": "commonjs",
+  "bin": {
+    "ioweb-laravel": "src/cli.js"
+  },
+  "scripts": {
+    "test": "node --test test/*.test.js"
+  }
+}
