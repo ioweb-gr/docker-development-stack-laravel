@@ -18,6 +18,8 @@ test('Laravel runtime declares Docker volumes for Windows high-churn paths', () 
   for (const name of ['laravel_vendor', 'laravel_node_modules', 'laravel_storage_framework_cache', 'laravel_bootstrap_cache']) {
     assert.match(config, new RegExp(name));
   }
+  assert.match(config, /post-start/);
+  assert.match(config, /sudo chown -R/);
 });
 
 test('Artisan arguments pass through after global options', () => {
