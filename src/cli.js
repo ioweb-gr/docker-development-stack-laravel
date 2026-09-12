@@ -137,6 +137,9 @@ function renderRuntimeConfig() {
     '  - MAIL_MAILER=smtp',
     '  - MAIL_HOST=ioweb-commons-mailpit',
     '  - MAIL_PORT=1025',
+    'hooks:',
+    '  post-start:',
+    '    - exec: "sudo chown -R $(stat -c \'%u:%g\' /var/www/html) /var/www/html/vendor /var/www/html/node_modules /var/www/html/storage/framework/cache /var/www/html/storage/framework/sessions /var/www/html/storage/framework/views /var/www/html/bootstrap/cache"',
     '',
   ].join('\n');
 }
@@ -154,9 +157,6 @@ function renderRuntimeVolumes() {
     '      - laravel_storage_framework_sessions:/var/www/html/storage/framework/sessions',
     '      - laravel_storage_framework_views:/var/www/html/storage/framework/views',
     '      - laravel_bootstrap_cache:/var/www/html/bootstrap/cache',
-    'hooks:',
-    '  post-start:',
-    '    - exec: "sudo chown -R $(stat -c \'%u:%g\' /var/www/html) /var/www/html/vendor /var/www/html/node_modules /var/www/html/storage/framework/cache /var/www/html/storage/framework/sessions /var/www/html/storage/framework/views /var/www/html/bootstrap/cache"',
     'volumes:',
     '  laravel_vendor:',
     '  laravel_node_modules:',
