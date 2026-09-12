@@ -137,9 +137,6 @@ function renderRuntimeConfig() {
     '  - MAIL_MAILER=smtp',
     '  - MAIL_HOST=ioweb-commons-mailpit',
     '  - MAIL_PORT=1025',
-    'hooks:',
-    '  post-start:',
-    '    - exec: "sudo chown -R $(stat -c \'%u:%g\' /var/www/html) /var/www/html/vendor /var/www/html/node_modules /var/www/html/storage/framework/cache /var/www/html/storage/framework/sessions /var/www/html/storage/framework/views /var/www/html/bootstrap/cache"',
     '',
   ].join('\n');
 }
