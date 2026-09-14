@@ -38,9 +38,17 @@ The consumer owns its dump and import decision:
 ```
 
 Imports target only the active Commons allocation and require `--confirm` in
-non-interactive execution. Keep URL/domain replacement policy in the consumer;
-Laravel data may contain application-specific JSON or serialized values and
-must not receive an unsafe whole-database text substitution by default.
+non-interactive execution. Umbrella bootstrapping also installs the shared
+restore command, which supports the same replacement, table exclusion, and
+post-import SQL stages:
+
+```powershell
+ddev ioweb-import --dump docker/imports/dump.sql.gz
+ddev ioweb-import --dry-run
+```
+
+Keep replacement policy in the consumer and review the manifest first; Laravel
+data may contain application-specific JSON or serialized values.
 
 ## Diagnostics
 
