@@ -12,8 +12,10 @@ const zlib = require('node:zlib');
 
 const RUNTIME_MARKER = '# ioweb-managed: docker-bootstrap Laravel Commons runtime v1';
 const VOLUME_MARKER = '# ioweb-managed: docker-bootstrap Laravel runtime volumes v1';
+const PHP_PERFORMANCE_MARKER = '; ioweb-managed: docker-bootstrap Laravel FPM performance v1';
 const RUNTIME_FILE = 'config.ioweb-laravel-runtime.yaml';
 const VOLUME_FILE = 'docker-compose.ioweb-laravel-runtime-volumes.yaml';
+const PHP_PERFORMANCE_FILE = '90-ioweb-fpm-performance.ini';
 const DEFAULT_DUMP_FILE = 'docker/imports/dump.sql.gz';
 
 function usage() {
@@ -165,15 +167,29 @@ function renderRuntimeVolumes() {
   ].join('\n');
 }
 
+function renderPhpPerformance() {
+  return [
+    PHP_PERFORMANCE_MARKER,
+    '; DDEV copies .ddev/php/*.ini into both the CLI and FPM SAPIs.',
+    'opcache.validate_timestamps = 1',
+    'opcache.revalidate_freq = 120',
+    'realpath_cache_size = 32M',
+    'realpath_cache_ttl = 7200',
+    '',
+  ].join('\n');
+}
+
 function renderRuntime(root, options = {}) {
   const runtime = path.join(root, '.ddev', RUNTIME_FILE);
   const volumes = path.join(root, '.ddev', VOLUME_FILE);
+  const php = path.join(root, '.ddev', 'php', PHP_PERFORMANCE_FILE);
   const changed = [
     writeManagedFile(runtime, renderRuntimeConfig(), RUNTIME_MARKER, options.force),
     writeManagedFile(volumes, renderRuntimeVolumes(), VOLUME_MARKER, options.force),
+    writeManagedFile(php, renderPhpPerformance(), PHP_PERFORMANCE_MARKER, options.force),
   ];
   if (!options.quiet) console.log(`[laravel] ${changed.some(Boolean) ? 'reconciled' : 'runtime files already current'} .ddev`);
-  return { runtime, volumes, changed: changed.some(Boolean) };
+  return { runtime, volumes, php, changed: changed.some(Boolean) };
 }
 
 function ddevCommand() {
@@ -298,7 +314,7 @@ async function benchmark(options) {
 
 function runtimeAudit(options) {
   const root = projectRoot(options);
-  const code = "echo json_encode(['php_version'=>PHP_VERSION,'memory_limit'=>ini_get('memory_limit'),'opcache_enabled'=>(bool)ini_get('opcache.enable'),'opcache_revalidate_freq'=>ini_get('opcache.revalidate_freq')]);";
+  const code = "echo json_encode(['php_version'=>PHP_VERSION,'memory_limit'=>ini_get('memory_limit'),'opcache_enabled'=>(bool)ini_get('opcache.enable'),'opcache_validate_timestamps'=>(bool)ini_get('opcache.validate_timestamps'),'opcache_revalidate_freq'=>ini_get('opcache.revalidate_freq'),'realpath_cache_size'=>ini_get('realpath_cache_size')]);";
   const result = childProcess.spawnSync(ddevCommand(), ['exec', '-s', 'web', 'php', '-r', code], { cwd: root, encoding: 'utf8', shell: false });
   if (result.error || result.status !== 0) throw new Error(`DDEV PHP audit failed${result.stderr ? `: ${result.stderr.trim()}` : '.'}`);
   const match = String(result.stdout || '').match(/\{[^\r\n]*\}\s*$/);
@@ -356,5 +372,6 @@ module.exports = {
   renderRuntime,
   renderRuntimeConfig,
   renderRuntimeVolumes,
+  renderPhpPerformance,
   runtimeAudit,
 };

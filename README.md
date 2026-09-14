@@ -24,6 +24,9 @@ ddev exec -s web php artisan migrate
 The bootstrap creates `docker/laravel`, the native DDEV config, Commons
 handoff files, and ignored runtime fragments. It does not run migrations,
 queues, the scheduler, mail delivery, or application synchronisation.
+The generated `.ddev/php/90-ioweb-fpm-performance.ini` keeps timestamp
+validation enabled with a 120-second revalidation interval and sets the
+realpath cache to 32M for both DDEV PHP SAPIs after `ddev restart`.
 
 ## Database operations
 
@@ -50,4 +53,3 @@ ddev xdebug on
 ddev xdebug off
 ddev ioweb-profiler status
 ```
-
